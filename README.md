@@ -1,6 +1,14 @@
-# Master Ventures
-Smart Contract - Take home test for interviewees
----
+<p align="center">
+  <h1 align="center">
+  Master Ventures
+  </h1>
+</p>
+
+<p align="center">
+  <b>
+  Smart Contract - Take Home Test
+  </b><br>
+</p>
 
 Welcome Candidate and thank you for taking the time to complete the Master Ventures take-home test for our senior smart contract engineer position.
 
