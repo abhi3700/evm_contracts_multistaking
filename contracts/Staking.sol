@@ -54,6 +54,8 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
         
         rwTokenAddr = _rwTokenAddr;
         rewardInterval = 31_536_000;            // 365 days in seconds
+
+        __Ownable_init();        // initialize the ownable contract with owner
     }
 
     // ==========Functions==========================================

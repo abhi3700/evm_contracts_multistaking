@@ -16,6 +16,7 @@ contract Token is Initializable, OwnableUpgradeable, ERC20Upgradeable, ERC20Burn
 
     /// @notice replacement of `constructor` for upgradeable contracts
     function initialize(string memory _name, string memory _symbol) public initializer {
+        __Ownable_init();
         __ERC20_init(_name, _symbol);
         __ERC20Burnable_init();
 
