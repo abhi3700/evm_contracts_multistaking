@@ -34,11 +34,11 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
 
     //implement your code here for "records", a mapping of token addresses and 
     // user addresses to an user Record struct
-    mapping(address => mapping(address => Record)) records;
+    mapping(address => mapping(address => Record)) public records;
 
     //implement your code here for "rewardRates", a mapping of token address to reward rates. 
     // e.g. if APY is 20%, then rewardRate is 20.
-    mapping(address => uint256) rewardRates;
+    mapping(address => uint256) public rewardRates;
 
     // ==========Events=============================================
     event Stake(address indexed user, uint256 amount, uint256 stakedAt);
@@ -61,7 +61,7 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
     // ==========Functions==========================================
     /// @notice for users to stake tokens
     function stake(address tokenAddr, uint256 amount) external whenNotPaused nonReentrant {
-        require(tokenAddr != address(0), "Invalid address");
+        require(tokenAddr != address(0), "Invalid token address");
         require(tokenAddr.isContract(), "is NOT a contract");
 
         // uint256 newAmount = 0;
@@ -72,13 +72,13 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
         }
 
         Record memory recordCaller = records[tokenAddr][_msgSender()];
-        require(recordCaller.stakedAmount != 0, "Already staked for this caller");
+        require(recordCaller.stakedAmount == 0, "Already staked for this caller");
 
-        recordCaller.stakedAmount = amount;
-        recordCaller.stakedAt = block.timestamp;
-        recordCaller.unstakedAmount = 0;
-        recordCaller.unstakedAt = 0;
-        recordCaller.rewardAmount = 0;
+        records[tokenAddr][_msgSender()].stakedAmount = amount;
+        records[tokenAddr][_msgSender()].stakedAt = block.timestamp;
+        records[tokenAddr][_msgSender()].unstakedAmount = 0;
+        records[tokenAddr][_msgSender()].unstakedAt = 0;
+        records[tokenAddr][_msgSender()].rewardAmount = 0;
 
         // transfer to SC using delegate transfer
         // NOTE: the tokens has to be approved first by the caller to the SC using `approve()` method.
@@ -90,7 +90,7 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
 
     /// @notice for users to unstake their staked tokens
     function unstake(address tokenAddr, uint256 amount) external whenNotPaused {
-        require(tokenAddr != address(0), "Invalid address");
+        require(tokenAddr != address(0), "Invalid token address");
         require(tokenAddr.isContract(), "is NOT a contract");
 
         Record memory recordCaller = records[tokenAddr][_msgSender()];
@@ -115,7 +115,7 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
 
     /// @notice for users to withdraw their unstaked tokens from this contract to the caller's address
     function withdrawUnstaked(address tokenAddr, uint256 _amount) external whenNotPaused nonReentrant {
-        require(tokenAddr != address(0), "Invalid address");
+        require(tokenAddr != address(0), "Invalid token address");
         require(tokenAddr.isContract(), "is NOT a contract");
         require(_amount > 0, "Amount must be positive");
 
@@ -134,7 +134,7 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
 
     /// @notice for users to withdraw reward tokens from this contract to the caller's address
     function withdrawReward(address tokenAddr, uint256 _amount) external whenNotPaused nonReentrant {
-        require(tokenAddr != address(0), "Invalid address");
+        require(tokenAddr != address(0), "Invalid token address");
         require(tokenAddr.isContract(), "is NOT a contract");
         require(_amount > 0, "Amount must be positive");
 
@@ -159,6 +159,7 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
         //      TimeDiff : current timestamp — last timestamp
         //      RewardInterval: 365 days
 
+        require(rewardRates[tokenAddr] != 0, "reward rate must be not zero");
         Record memory recordCaller = records[tokenAddr][user];
 
         uint256 rewardAmount = 0;
@@ -172,7 +173,7 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
 
     /// @notice only for this contract owner to set the reward rate of a staked token
     function setRewardRate(address tokenAddr, uint256 rewardRate) external onlyOwner {
-        require(tokenAddr != address(0), "Invalid address");
+        require(tokenAddr != address(0), "Invalid token address");
         require(tokenAddr.isContract(), "is NOT a contract");
         require(rewardRate > 0 && rewardRate <= 100, "reward rate must be between (0 and 100]");
 
@@ -187,6 +188,37 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
     /// @notice only for this contract owner to unpause this contract
     function unpause() external onlyOwner whenPaused {
         _unpause();
+    }
+
+    // ==================UTILITY======================================
+    /// @notice get user record for a token
+    function getUserRecord(address tokenAddr, address user) external view returns (
+        uint256 stakedAmt,
+        uint256 stakedAt,
+        uint256 unstakedAmt,
+        uint256 unstakedAt,
+        uint256 rewardAmt
+    ) {
+        require(tokenAddr != address(0), "Invalid token address");
+        require(tokenAddr.isContract(), "is NOT a contract");
+        require(user != address(0), "Invalid user address");
+
+        Record memory userRecord = records[tokenAddr][user];
+        return (
+            userRecord.stakedAmount,
+            userRecord.stakedAt,
+            userRecord.unstakedAmount,
+            userRecord.unstakedAt,
+            userRecord.rewardAmount
+        );
+    }
+
+    /// @notice get reward rate for a token
+    function getRewardRate(address tokenAddr) external view returns (uint256) {
+        require(tokenAddr != address(0), "Invalid token address");
+        require(tokenAddr.isContract(), "is NOT a contract");
+
+        return rewardRates[tokenAddr];
     }
 
 }
