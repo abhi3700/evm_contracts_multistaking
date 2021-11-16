@@ -8,7 +8,7 @@ Staking contract for multiple tokens
  
 ## Installation
 ```console
-$ npm install
+$ npm i
 ```
 
 ## Usage
