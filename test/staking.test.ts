@@ -159,7 +159,7 @@ describe("Multi token Staking contract", () => {
 				.to.emit(stakingContract, "Stake");
 				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
 
-			const [stakedAmt, stakedAt, unstakedAmt, unstakedAt, rewardAmt] = await stakingContract.getUserRecord(token.address, addr1.address);
+			const [stakedAmt, , , , ] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmt).to.eq(BigNumber.from("10000000000000000000"));
 		});
 
@@ -172,7 +172,7 @@ describe("Multi token Staking contract", () => {
 				.to.emit(stakingContract, "Stake");
 				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
 
-			const [stakedAmt, stakedAt, unstakedAmt, unstakedAt, rewardAmt] = await stakingContract.getUserRecord(token.address, addr1.address);
+			const [stakedAmt, , , , ] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmt).to.eq(BigNumber.from("10000000000000000000000"));
 		});
 
@@ -219,7 +219,7 @@ describe("Multi token Staking contract", () => {
 				.to.emit(stakingContract, "Stake");
 				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
 
-			const [stakedAmt, stakedAt, unstakedAmt, unstakedAt, rewardAmt] = await stakingContract.getUserRecord(token.address, addr1.address);
+			const [stakedAmt, , , , ] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmt).to.eq(BigNumber.from("10000000000000000000"));
 
 			// Again stake
@@ -258,8 +258,7 @@ describe("Multi token Staking contract", () => {
 				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
 
 			// view staked amount for addr1 after staking
-			const [stakedAmtAfterStaking, , , 
-					, ] = await stakingContract.getUserRecord(token.address, addr1.address);
+			const [stakedAmtAfterStaking, , , , ] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmtAfterStaking).to.eq(String(BigNumber.from("10000000000000000000")));
 
 			// Now, the balance of addr1 is 9990 (10,000 - 10) i.e. 9990e18
@@ -272,8 +271,7 @@ describe("Multi token Staking contract", () => {
 				.to.emit(stakingContract, "Unstake");
 
 			// view staked, unstaked amounts after unstaking
-			const [stakedAmtAfterUnstaking, , unstakedAmtAfterUnstaking, 
-					, ] = await stakingContract.getUserRecord(token.address, addr1.address);
+			const [stakedAmtAfterUnstaking, , unstakedAmtAfterUnstaking, , ] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmtAfterUnstaking).to.eq(0);
 			await expect(unstakedAmtAfterUnstaking).to.eq(BigNumber.from("10000000000000000000"));
 
@@ -285,8 +283,7 @@ describe("Multi token Staking contract", () => {
 				.to.emit(stakingContract, "Unstake");
 
 			// view staked, unstaked amounts after unstaking
-			const [stakedAmtAfterUnstaking, , unstakedAmtAfterUnstaking, 
-					, ] = await stakingContract.getUserRecord(token.address, addr1.address);
+			const [stakedAmtAfterUnstaking, , unstakedAmtAfterUnstaking, , ] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmtAfterUnstaking).to.eq(BigNumber.from("9000000000000000000"));
 			await expect(unstakedAmtAfterUnstaking).to.eq(BigNumber.from("1000000000000000000"));
 
@@ -346,8 +343,7 @@ describe("Multi token Staking contract", () => {
 				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
 
 			// view staked amount for addr1 after staking
-			const [stakedAmtAfterStaking, , , 
-					, ] = await stakingContract.getUserRecord(token.address, addr1.address);
+			const [stakedAmtAfterStaking, , , , ] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmtAfterStaking).to.eq(String(BigNumber.from("10000000000000000000")));
 
 			// Now, the balance of addr1 is 9990 (10,000 - 10) i.e. 9990e18
@@ -358,8 +354,7 @@ describe("Multi token Staking contract", () => {
 				.to.emit(stakingContract, "Unstake");
 
 			// view staked, unstaked amounts after unstaking
-			const [stakedAmtAfterUnstaking, , unstakedAmtAfterUnstaking, 
-					, ] = await stakingContract.getUserRecord(token.address, addr1.address);
+			const [stakedAmtAfterUnstaking, , unstakedAmtAfterUnstaking, , ] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmtAfterUnstaking).to.eq(BigNumber.from("6000000000000000000"));
 			await expect(unstakedAmtAfterUnstaking).to.eq(BigNumber.from("4000000000000000000"));
 
@@ -438,8 +433,7 @@ describe("Multi token Staking contract", () => {
 				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
 
 			// view staked amount for addr1 after staking
-			const [stakedAmtAfterStaking, , , 
-					, ] = await stakingContract.getUserRecord(token.address, addr1.address);
+			const [stakedAmtAfterStaking, , , , ] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmtAfterStaking).to.eq(String(BigNumber.from("10000000000000000000")));
 
 			// Now, the balance of addr1 is 9990 (10,000 - 10) i.e. 9990e18
@@ -537,5 +531,121 @@ describe("Multi token Staking contract", () => {
 				.to.be.revertedWith("Pausable: paused");
 		});
 	});
+
+	describe("Calculate Reward", async () => {
+		let rewardAmtAfterUnstaking: BigNumber;
+
+		beforeEach(async () => {
+			// first approve the 1e19 i.e. 10 MVT tokens to the contract
+			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
+
+			// addr1 stake 1e19 i.e. 10 MVT tokens
+			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("10000000000000000000")))
+				.to.emit(stakingContract, "Stake");
+				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
+
+			// view staked amount for addr1 after staking
+			const [stakedAmtAfterStaking, , , , ] = await stakingContract.getUserRecord(token.address, addr1.address);
+			await expect(stakedAmtAfterStaking).to.eq(String(BigNumber.from("10000000000000000000")));
+
+			// Now, the balance of addr1 is 9990 (10,000 - 10) i.e. 9990e18
+			expect(await token.balanceOf(addr1.address)).to.eq(BigNumber.from("9990000000000000000000"));
+
+			// unstake after 20 weeks => get reward amount based on 20 days of staking
+			// increase the current timestamp by 20 weeks
+			const currentTimestamp = await getCurrentBlockTimestamp();
+			await setTimestamp(currentTimestamp + 20 * TIME.WEEKS);
+
+			// unstake partially i.e. 4e18 i.e. 4 MVT tokens
+			await expect(stakingContract.connect(addr1).unstake(token.address, BigNumber.from("4000000000000000000")))
+				.to.emit(stakingContract, "Unstake");
+
+			// view staked, unstaked amounts after unstaking
+			const [stakedAmtAfterUnstaking, , unstakedAmtAfterUnstaking, , ] = await stakingContract.getUserRecord(token.address, addr1.address);
+			await expect(stakedAmtAfterUnstaking).to.eq(BigNumber.from("6000000000000000000"));
+			await expect(unstakedAmtAfterUnstaking).to.eq(BigNumber.from("4000000000000000000"));
+
+			rewardAmtAfterUnstaking = await stakingContract.getUserRewardAmt(token.address, addr1.address);
+
+		});
+
+		it("Succeeds with manual calculation", async () => {
+			const [addr1currentStakedAmt, , , , ] = await stakingContract.getUserRecord(token.address, addr1.address);
+			// console.log(`addr1 current staked Amount: ${addr1currentStakedAmt}`);
+
+			const [, , , , addr1stakedAt] = await stakingContract.getUserRecord(token.address, addr1.address);
+			// console.log(`addr1 staked At: ${addr1stakedAt}`);
+
+			// console.log(`reward interval: ${await stakingContract.rewardInterval.call()}`);
+
+			// the reward rate is 20%
+			const rewardRate = await stakingContract.getRewardRate(token.address);
+			// console.log(`reward rate: ${rewardRate}`);
+
+			const currentTimestamp = await getCurrentBlockTimestamp()
+			// console.log(`current timestamp: ${currentTimestamp}`);
+
+			// verify the manual calculation (note down values using `console.log`) with the calculated value
+			expect(await stakingContract.calculateReward(token.address, addr1.address, addr1currentStakedAmt))
+				.to.eq(BigNumber.from("460274010654490106"));
+
+		});
+
+		it("Reverts when zero token address", async () => {
+			await expect(stakingContract.calculateReward(ZERO_ADDRESS, addr1.address, String(1)))
+				.to.be.revertedWith("Invalid token address");
+
+		});
+
+		it("Reverts when token address is not a contract", async () => {
+			await expect(stakingContract.calculateReward(addr2.address, addr1.address, String(1)))
+				.to.be.revertedWith("is NOT a contract");
+
+		});
+
+		it("Reverts when amount is zero", async () => {
+			await expect(stakingContract.calculateReward(token.address, addr1.address, BigNumber.from("0")))
+				.to.be.revertedWith("Amount must be positive");
+		});
+
+	});
+
+	describe("Set Reward Rate", async () => {
+		it("Succeeds when when set by owner", async () => {
+			await expect(stakingContract.setRewardRate(token.address, String(20)));
+
+			const rewardRate = await stakingContract.getRewardRate(token.address);
+			await expect(rewardRate).to.eq(String(20));
+		});
+
+		it("Reverts when when set by non-owner", async () => {
+			await expect(stakingContract.connect(addr1).setRewardRate(token.address, String(20)))
+				.to.be.revertedWith("Ownable: caller is not the owner");
+		});
+
+		it("Reverts when zero token address", async () => {
+			await expect(stakingContract.setRewardRate(ZERO_ADDRESS, String(20)))
+				.to.be.revertedWith("Invalid token address");
+
+		});
+
+		it("Reverts when token address is not a contract", async () => {
+			await expect(stakingContract.setRewardRate(addr2.address, String(20)))
+				.to.be.revertedWith("is NOT a contract");
+
+		});
+
+		it("Reverts when value is zero", async () => {
+			await expect(stakingContract.setRewardRate(token.address, String(0)))
+				.to.be.revertedWith("reward rate must be between (0 and 100]");
+		});
+
+		it("Reverts when value is more than 100", async () => {
+			await expect(stakingContract.setRewardRate(token.address, String(101)))
+				.to.be.revertedWith("reward rate must be between (0 and 100]");
+		});
+	});
+
+
 
 });

@@ -227,7 +227,7 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
     }
 
     /// @notice get user staked amount for a token
-    function getUserStakedAmt(address tokenAddr, address user) external view returns (uint256) 
+/*    function getUserStakedAmt(address tokenAddr, address user) external view returns (uint256) 
     {
         require(tokenAddr != address(0), "Invalid token address");
         require(tokenAddr.isContract(), "is NOT a contract");
@@ -237,9 +237,9 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
         
         return userRecord.stakedAmount;
     }
-
+*/
     /// @notice get user staked at for a token
-    function getUserStakedAt(address tokenAddr, address user) external view returns (uint256) 
+/*    function getUserStakedAt(address tokenAddr, address user) external view returns (uint256) 
     {
         require(tokenAddr != address(0), "Invalid token address");
         require(tokenAddr.isContract(), "is NOT a contract");
@@ -249,9 +249,9 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
         
         return userRecord.stakedAt;
     }
-
+*/
     /// @notice get user unstaked amt for a token
-    function getUserUnstakedAmt(address tokenAddr, address user) external view returns (uint256) 
+/*    function getUserUnstakedAmt(address tokenAddr, address user) external view returns (uint256) 
     {
         require(tokenAddr != address(0), "Invalid token address");
         require(tokenAddr.isContract(), "is NOT a contract");
@@ -261,9 +261,9 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
         
         return userRecord.unstakedAmount;
     }
-
+*/
     /// @notice get user unstaked at for a token
-    function getUserUnstakedAt(address tokenAddr, address user) external view returns (uint256) 
+/*    function getUserUnstakedAt(address tokenAddr, address user) external view returns (uint256) 
     {
         require(tokenAddr != address(0), "Invalid token address");
         require(tokenAddr.isContract(), "is NOT a contract");
@@ -273,7 +273,7 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
         
         return userRecord.unstakedAt;
     }
-
+*/
     /// @notice get user unstaked at for a token
     function getUserRewardAmt(address tokenAddr, address user) external view returns (uint256) 
     {

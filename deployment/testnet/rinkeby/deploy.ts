@@ -3,7 +3,7 @@
 // When running the script with `hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import { ethers, upgrades } from 'hardhat';
-import { Contract, ContractFactory } from 'ethers';
+import { Contract, ContractFactory, BigNumber } from 'ethers';
 
 async function main(): Promise<void> {
   // Hardhat always runs the compile task when running scripts through it.
@@ -32,17 +32,16 @@ async function main(): Promise<void> {
   const RewardsTokenFactory: ContractFactory = await ethers.getContractFactory(
     'Token',
   );
-  // const rewardsToken: Contract = await TokenFactory.deploy();
-  const rewardsToken: Contract = await upgrades.deployProxy(TokenFactory, ["Master Ventures Rewards Token", "MVRW"]);
-  await rewardsToken.deployed();
-  console.log('staking rewards Token deployed to: ', rewardsToken.address);
+  // const rewardToken: Contract = await TokenFactory.deploy();
+  const rewardToken: Contract = await upgrades.deployProxy(TokenFactory, ["Master Ventures Rewards Token", "MVRW"]);
+  await rewardToken.deployed();
+  console.log('staking rewards Token deployed to: ', rewardToken.address);
 
   console.log(
       `The transaction that was sent to the network to deploy the token contract: ${
-          rewardsToken.deployTransaction.hash
+          rewardToken.deployTransaction.hash
       }`
   );
-
 
   // ==============================================================================
   // We get the staking contract to deploy
@@ -50,7 +49,7 @@ async function main(): Promise<void> {
     'Staking',
   );
   // const stakingC: Contract = await StakingFactory.deploy(token.address);
-  const stakingC: Contract = await upgrades.deployProxy(StakingFactory, [rewardsToken.address]);
+  const stakingC: Contract = await upgrades.deployProxy(StakingFactory, [rewardToken.address]);
   await stakingC.deployed();
   console.log('Staking deployed to: ', stakingC.address);
   console.log(
@@ -59,7 +58,21 @@ async function main(): Promise<void> {
       }`
   );
 
+  // --------------------------------------------------------------------------------
+  // initiate with setting reward rate
+  await stakingC.setRewardRate(token.address, String(20));
+  const rewardRate = await stakingC.getRewardRate(token.address);
+  console.log(`reward rate for token - ${token.address}: ${rewardRate}`);
+
+  // --------------------------------------------------------------------------------
+  // mint 100,000 reward tokens to staking contract for rewarding
+  await rewardToken.mint(stakingC.address, BigNumber.from("100000000000000000000000"));
+
+  const rewardBalanceOfStakingC = await rewardToken.balanceOf(stakingC.address);
+  console.log(`reward tokens minted to staking contract - ${stakingC.address}: ${rewardBalanceOfStakingC}`);
+
 }
+
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.  
