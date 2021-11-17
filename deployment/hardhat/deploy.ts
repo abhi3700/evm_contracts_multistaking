@@ -43,7 +43,6 @@ async function main(): Promise<void> {
       }`
   );
 
-
   // ==============================================================================
   // We get the staking contract to deploy
   const StakingFactory: ContractFactory = await ethers.getContractFactory(
@@ -60,6 +59,12 @@ async function main(): Promise<void> {
   );
 
 }
+
+  // --------------------------------------------------------------------------------
+  // TODO: initiate with setting reward rate
+
+  // --------------------------------------------------------------------------------
+  // TODO: mint 100,000 tokens to staking contract
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.  

@@ -92,9 +92,10 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
     function unstake(address tokenAddr, uint256 amount) external whenNotPaused {
         require(tokenAddr != address(0), "Invalid token address");
         require(tokenAddr.isContract(), "is NOT a contract");
+        require(amount > 0, "Amount must be positive");
 
         Record memory recordCaller = records[tokenAddr][_msgSender()];
-        require(recordCaller.stakedAmount != 0, "None staked for this caller");
+        require(recordCaller.stakedAmount >= amount, "Insufficient staked amount");
 
         records[tokenAddr][_msgSender()].stakedAmount = recordCaller.stakedAmount.sub(amount);
         
@@ -145,7 +146,7 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
         records[tokenAddr][_msgSender()].rewardAmount = recordCaller.rewardAmount.sub(_amount);
 
         // transfer back reward tokens to caller using delegate transfer
-        bool success = IERC20Upgradeable(tokenAddr).transfer(_msgSender(), _amount);
+        bool success = IERC20Upgradeable(rwTokenAddr).transfer(_msgSender(), _amount);
         require(success, "Unstake: transfer function failed.");
 
         emit WithdrawRewards(_msgSender(), _amount, block.timestamp);
