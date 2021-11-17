@@ -121,7 +121,7 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
         require(_amount > 0, "Amount must be positive");
 
         Record memory recordCaller = records[tokenAddr][_msgSender()];
-        require(recordCaller.unstakedAmount != 0, "None unstaked for this caller");
+        require(recordCaller.unstakedAmount >= _amount, "Insufficient unstaked amount");
 
         // update the unstakedAmount
         records[tokenAddr][_msgSender()].unstakedAmount = recordCaller.unstakedAmount.sub(_amount);
