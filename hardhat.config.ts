@@ -66,11 +66,11 @@ const config: HardhatUserConfig = {
     // coverage: {
     //   url: "http://127.0.0.1:8555",
     // },
-    // mainnet: {
-    //   url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
-    //   chainId: 1,
-    //   accounts: [`0x${DEPLOYER_PRIVATE_KEY_MAINNET}`],
-    // },
+    mainnet: {
+      url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
+      chainId: 1,
+      accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
+    },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
       // url: "https://rinkeby.infura.io/v3/24d441e3175047bfb04c60e8221878c9",

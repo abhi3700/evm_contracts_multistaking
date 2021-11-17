@@ -34,20 +34,8 @@ describe("Multi token Staking contract", () => {
 
 	beforeEach(async () => {
 		// get signers
-		// M-1
-		/*    const signers = await ethers.getSigners();
-		owner = signers[0];
-		owner2 = signers[1];
-		addr1 = signers[3];
-		addr2 = signers[4];
-		addr3 = signers[5];
-		addr4 = signers[6];
-		*/
-
-		// M-2
 		[owner, owner2, addr1, addr2, addr3, addr4] = await ethers.getSigners();
-
-
+		
 		// ---------------------------------------------------
 		// deploy token contract
 		const tokenFactory = await ethers.getContractFactory('Token');

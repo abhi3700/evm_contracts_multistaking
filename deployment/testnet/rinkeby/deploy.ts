@@ -60,16 +60,16 @@ async function main(): Promise<void> {
 
   // --------------------------------------------------------------------------------
   // initiate with setting reward rate
-  await stakingC.setRewardRate(token.address, String(20));
-  const rewardRate = await stakingC.getRewardRate(token.address);
-  console.log(`reward rate for token - ${token.address}: ${rewardRate}`);
+  await stakingC.connect()setRewardRate(token.address, String(20));
+  // const rewardRate = await stakingC.getRewardRate(token.address);
+  // console.log(`reward rate for token - ${token.address}: ${rewardRate}`);
 
   // --------------------------------------------------------------------------------
   // mint 100,000 reward tokens to staking contract for rewarding
   await rewardToken.mint(stakingC.address, BigNumber.from("100000000000000000000000"));
 
-  const rewardBalanceOfStakingC = await rewardToken.balanceOf(stakingC.address);
-  console.log(`reward tokens minted to staking contract - ${stakingC.address}: ${rewardBalanceOfStakingC}`);
+  // const rewardBalanceOfStakingC = await rewardToken.balanceOf(stakingC.address);
+  // console.log(`reward tokens minted to staking contract - ${stakingC.address}: ${rewardBalanceOfStakingC}`);
 
 }
 

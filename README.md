@@ -61,5 +61,5 @@ REPORT_GAS=<true_or_false>
 
 * Deploy the token on one-chain
 ```console
-$ npx hardhat run deployment/testnet/ETH/deploy.ts  --network mainnet
+$ npx hardhat run deployment/mainnet/ETH/deploy.ts  --network mainnet
 ```
