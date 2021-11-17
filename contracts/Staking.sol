@@ -104,10 +104,10 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
         records[tokenAddr][_msgSender()].unstakedAmount = recordCaller.unstakedAmount.add(amount);
         records[tokenAddr][_msgSender()].unstakedAt = block.timestamp;
 
-        // get the current staked amount (after unstake) for calculating reward
-        uint256 currentStakedAmt = recordCaller.stakedAmount.sub(amount);
-
-        uint256 calculatedReward = calculateReward(tokenAddr, _msgSender(), currentStakedAmt);
+        // calculate the reward for the amount getting unstaked based on the stake duration
+        uint256 calculatedReward = calculateReward(tokenAddr, _msgSender(), amount);
+        
+        // console.log("unstake() | Calculated reward: %s", calculatedReward);
 
         records[tokenAddr][_msgSender()].rewardAmount = recordCaller.rewardAmount.add(calculatedReward);
 
@@ -140,7 +140,7 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
         require(_amount > 0, "Amount must be positive");
 
         Record memory recordCaller = records[tokenAddr][_msgSender()];
-        require(recordCaller.rewardAmount != 0, "No reward for this caller");
+        require(recordCaller.rewardAmount >= _amount, "Insufficient reward amount");
 
         // update the unstakedAmount
         records[tokenAddr][_msgSender()].rewardAmount = recordCaller.rewardAmount.sub(_amount);
@@ -155,19 +155,31 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
     /// @notice to calculate rewards based on the duration of staked tokens, staked token amount, reward rate of the staked token, reward interval
     function calculateReward(address tokenAddr, address user, uint256 _amount) public view returns (uint256) {
         // Reward amount = Staked Amount * Reward Rate * TimeDiff / RewardInterval
-        //      Current staked Amount : staked amount *stake fee — unstaked amount *unstake fee
+        //      Staked Amount : amount getting unstaked for which the reward should be paid to staker
         //      RewardRate : APY %
         //      TimeDiff : current timestamp — last timestamp
         //      RewardInterval: 365 days
 
-        require(rewardRates[tokenAddr] != 0, "reward rate must be not zero");
+        require(tokenAddr != address(0), "Invalid token address");
+        require(tokenAddr.isContract(), "is NOT a contract");
+        require(user != address(0), "Invalid user address");
+        require(_amount > 0, "Amount must be positive");
+        require(rewardRates[tokenAddr] != 0, "token reward rate must be non-zero");
+        require(rewardInterval != 0, "reward interval must be non-zero");
+
         Record memory recordCaller = records[tokenAddr][user];
 
         uint256 rewardAmount = 0;
 
-        uint256 rewardRate = rewardRates[tokenAddr].div(100);
+        uint256 rewardRate = rewardRates[tokenAddr];
+        // console.log("calculateReward() | rewardRate: %s", rewardRate);
+        
         uint256 timeDiff = block.timestamp.sub(recordCaller.stakedAt);
-        rewardAmount = _amount.mul(rewardRate).mul(timeDiff).div(rewardInterval);
+        // console.log("calculateReward() | timeDiff: %s", timeDiff);
+        
+        // rewardAmount = (_amount.mul(rewardRate).mul(timeDiff).div(rewardInterval)).div(100);     // divided by 100 bcoz of percentage
+        rewardAmount = _amount.mul(rewardRate).mul(timeDiff).div(rewardInterval).div(100);          // divided by 100 bcoz of percentage
+        // console.log("calculateReward() | rewardAmount: %s", rewardAmount);
 
         return rewardAmount;
     }
@@ -212,6 +224,66 @@ contract Staking is Initializable, OwnableUpgradeable, PausableUpgradeable, Reen
             userRecord.unstakedAt,
             userRecord.rewardAmount
         );
+    }
+
+    /// @notice get user staked amount for a token
+    function getUserStakedAmt(address tokenAddr, address user) external view returns (uint256) 
+    {
+        require(tokenAddr != address(0), "Invalid token address");
+        require(tokenAddr.isContract(), "is NOT a contract");
+        require(user != address(0), "Invalid user address");
+
+        Record memory userRecord = records[tokenAddr][user];
+        
+        return userRecord.stakedAmount;
+    }
+
+    /// @notice get user staked at for a token
+    function getUserStakedAt(address tokenAddr, address user) external view returns (uint256) 
+    {
+        require(tokenAddr != address(0), "Invalid token address");
+        require(tokenAddr.isContract(), "is NOT a contract");
+        require(user != address(0), "Invalid user address");
+
+        Record memory userRecord = records[tokenAddr][user];
+        
+        return userRecord.stakedAt;
+    }
+
+    /// @notice get user unstaked amt for a token
+    function getUserUnstakedAmt(address tokenAddr, address user) external view returns (uint256) 
+    {
+        require(tokenAddr != address(0), "Invalid token address");
+        require(tokenAddr.isContract(), "is NOT a contract");
+        require(user != address(0), "Invalid user address");
+
+        Record memory userRecord = records[tokenAddr][user];
+        
+        return userRecord.unstakedAmount;
+    }
+
+    /// @notice get user unstaked at for a token
+    function getUserUnstakedAt(address tokenAddr, address user) external view returns (uint256) 
+    {
+        require(tokenAddr != address(0), "Invalid token address");
+        require(tokenAddr.isContract(), "is NOT a contract");
+        require(user != address(0), "Invalid user address");
+
+        Record memory userRecord = records[tokenAddr][user];
+        
+        return userRecord.unstakedAt;
+    }
+
+    /// @notice get user unstaked at for a token
+    function getUserRewardAmt(address tokenAddr, address user) external view returns (uint256) 
+    {
+        require(tokenAddr != address(0), "Invalid token address");
+        require(tokenAddr.isContract(), "is NOT a contract");
+        require(user != address(0), "Invalid user address");
+
+        Record memory userRecord = records[tokenAddr][user];
+        
+        return userRecord.rewardAmount;
     }
 
     /// @notice get reward rate for a token
