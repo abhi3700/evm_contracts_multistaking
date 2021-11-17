@@ -154,27 +154,27 @@ describe("Multi token Staking contract", () => {
 	describe("Stake", async () => {
 		it("Succeeds with staking", async () => {
 			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr3).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
+			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
 
-			// addr3 stake 1e19 i.e. 10 MVT tokens
-			await expect(stakingContract.connect(addr3).stake(token.address, BigNumber.from("10000000000000000000")))
+			// addr1 stake 1e19 i.e. 10 MVT tokens
+			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("10000000000000000000")))
 				.to.emit(stakingContract, "Stake");
-				// .withArgs(addr3.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
+				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
 
-			const [stakedAmt, stakedAt, unstakedAmt, unstakedAt, rewardAmt] = await stakingContract.getUserRecord(token.address, addr3.address);
+			const [stakedAmt, stakedAt, unstakedAmt, unstakedAt, rewardAmt] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmt).to.eq(BigNumber.from("10000000000000000000"));
 		});
 
 		it("Succeeds with parsing zero staking amount, but ends up in staking entire balance", async () => {
 			// first approve the 1e19 i.e. 10,000 MVT tokens to the contract
-			token.connect(addr3).approve(stakingContract.address, BigNumber.from("100000000000000000000000"));
+			token.connect(addr1).approve(stakingContract.address, BigNumber.from("100000000000000000000000"));
 
-			// addr3 stake 1e19 i.e. 0 MVT tokens, but end up staking its entire token balance
-			await expect(stakingContract.connect(addr3).stake(token.address, BigNumber.from("0")))
+			// addr1 stake 1e19 i.e. 0 MVT tokens, but end up staking its entire token balance
+			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("0")))
 				.to.emit(stakingContract, "Stake");
-				// .withArgs(addr3.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
+				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
 
-			const [stakedAmt, stakedAt, unstakedAmt, unstakedAt, rewardAmt] = await stakingContract.getUserRecord(token.address, addr3.address);
+			const [stakedAmt, stakedAt, unstakedAmt, unstakedAt, rewardAmt] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmt).to.eq(BigNumber.from("10000000000000000000000"));
 		});
 
@@ -193,20 +193,20 @@ describe("Multi token Staking contract", () => {
 
 		it("Reverts when zero token", async () => {
 			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr3).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
+			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
 
-			// addr3 stake 1e19 i.e. 10 MVT tokens
-			await expect(stakingContract.connect(addr3).stake(ZERO_ADDRESS, BigNumber.from("10000000000000000000")))
+			// addr1 stake 1e19 i.e. 10 MVT tokens
+			await expect(stakingContract.connect(addr1).stake(ZERO_ADDRESS, BigNumber.from("10000000000000000000")))
 				.to.be.revertedWith("Invalid token address");
 
 		});
 
 		it("Reverts when token address is not a contract", async () => {
 			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr3).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
+			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
 
-			// addr3 stake 1e19 i.e. 10 MVT tokens with parsing addr1 (not a contract address)
-			await expect(stakingContract.connect(addr3).stake(addr1.address, BigNumber.from("10000000000000000000")))
+			// addr1 stake 1e19 i.e. 10 MVT tokens with parsing addr1 (not a contract address)
+			await expect(stakingContract.connect(addr1).stake(addr1.address, BigNumber.from("10000000000000000000")))
 				.to.be.revertedWith("is NOT a contract");
 
 		});
@@ -214,22 +214,22 @@ describe("Multi token Staking contract", () => {
 		it("Reverts when already staked", async () => {
 			// 1st stake
 			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr3).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
+			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
 
-			// addr3 stake 1e19 i.e. 10 MVT tokens
-			await expect(stakingContract.connect(addr3).stake(token.address, BigNumber.from("10000000000000000000")))
+			// addr1 stake 1e19 i.e. 10 MVT tokens
+			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("10000000000000000000")))
 				.to.emit(stakingContract, "Stake");
-				// .withArgs(addr3.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
+				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
 
-			const [stakedAmt, stakedAt, unstakedAmt, unstakedAt, rewardAmt] = await stakingContract.getUserRecord(token.address, addr3.address);
+			const [stakedAmt, stakedAt, unstakedAmt, unstakedAt, rewardAmt] = await stakingContract.getUserRecord(token.address, addr1.address);
 			await expect(stakedAmt).to.eq(BigNumber.from("10000000000000000000"));
 
 			// Again stake
 			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr3).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
+			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
 
-			// addr3 stake 1e19 i.e. 10 MVT tokens
-			await expect(stakingContract.connect(addr3).stake(token.address, BigNumber.from("10000000000000000000")))
+			// addr1 stake 1e19 i.e. 10 MVT tokens
+			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("10000000000000000000")))
 				.to.be.revertedWith("Already staked for this caller");
 		});
 
@@ -240,10 +240,10 @@ describe("Multi token Staking contract", () => {
 				.withArgs(owner.address);
 
 			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr3).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
+			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
 
-			// addr3 stake 1e19 i.e. 10 MVT tokens
-			await expect(stakingContract.connect(addr3).stake(token.address, BigNumber.from("10000000000000000000")))
+			// addr1 stake 1e19 i.e. 10 MVT tokens
+			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("10000000000000000000")))
 				.to.be.revertedWith("Pausable: paused");
 		});
 
