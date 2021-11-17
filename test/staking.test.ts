@@ -249,13 +249,8 @@ describe("Multi token Staking contract", () => {
 
 	});
 
-	describe("Unstake", async () => {
-		it("Succeeds with unstaking entirely", async () => {
-			// view staked amount for addr1
-			const [stakedAmtBeforeStaking, , , 
-					, ] = await stakingContract.getUserRecord(token.address, addr1.address);
-			await expect(stakedAmtBeforeStaking).to.eq(String(0));
-
+	describe.only("Unstake", async () => {
+		beforeEach(async () => {
 			// first approve the 1e19 i.e. 10 MVT tokens to the contract
 			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
 
@@ -264,53 +259,42 @@ describe("Multi token Staking contract", () => {
 				.to.emit(stakingContract, "Stake");
 				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
 
+			// view staked amount for addr1 after staking
+			const [stakedAmtAfterStaking, , , 
+					, ] = await stakingContract.getUserRecord(token.address, addr1.address);
+			await expect(stakedAmtAfterStaking).to.eq(String(BigNumber.from("10000000000000000000")));
+
+			// Now, the balance of addr1 is 9990 (10,000 - 10) i.e. 9990e18
+			expect(await token.balanceOf(addr1.address)).to.eq(BigNumber.from("9990000000000000000000"));
+		});
+
+		it("Succeeds with unstaking entirely", async () => {
 			// unstake entirely
 			await expect(stakingContract.connect(addr1).unstake(token.address, BigNumber.from("10000000000000000000")))
 				.to.emit(stakingContract, "Unstake");
 
+			// view staked, unstaked amounts after unstaking
 			const [stakedAmtAfterUnstaking, , unstakedAmtAfterUnstaking, 
 					, ] = await stakingContract.getUserRecord(token.address, addr1.address);
-			await expect(stakedAmtAfterUnstaking.sub(stakedAmtBeforeStaking)).to.eq(0);
-
+			await expect(stakedAmtAfterUnstaking).to.eq(0);
 			await expect(unstakedAmtAfterUnstaking).to.eq(BigNumber.from("10000000000000000000"));
 
 		});
 
 		it("Succeeds with unstaking partially", async () => {
-			// view staked amount for addr1
-			const [stakedAmtBeforeStaking, , , 
-					, ] = await stakingContract.getUserRecord(token.address, addr1.address);
-			await expect(stakedAmtBeforeStaking).to.eq(String(0));
-
-			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
-
-			// addr1 stake 1e19 i.e. 10 MVT tokens
-			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("10000000000000000000")))
-				.to.emit(stakingContract, "Stake");
-				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
-
 			// unstake partially i.e. 1e18 i.e. 1 MVT tokens
 			await expect(stakingContract.connect(addr1).unstake(token.address, BigNumber.from("1000000000000000000")))
 				.to.emit(stakingContract, "Unstake");
 
+			// view staked, unstaked amounts after unstaking
 			const [stakedAmtAfterUnstaking, , unstakedAmtAfterUnstaking, 
 					, ] = await stakingContract.getUserRecord(token.address, addr1.address);
-			await expect(stakedAmtAfterUnstaking.sub(stakedAmtBeforeStaking)).to.eq(BigNumber.from("9000000000000000000"));
-
+			await expect(stakedAmtAfterUnstaking).to.eq(BigNumber.from("9000000000000000000"));
 			await expect(unstakedAmtAfterUnstaking).to.eq(BigNumber.from("1000000000000000000"));
 
 		});
 
 		it("Reverts when zero token address", async () => {
-			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
-
-			// addr1 stake 1e19 i.e. 10 MVT tokens
-			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("10000000000000000000")))
-				.to.emit(stakingContract, "Stake");
-				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
-
 			// unstake partially i.e. 1e18 i.e. 1 MVT tokens
 			await expect(stakingContract.connect(addr1).unstake(ZERO_ADDRESS, BigNumber.from("1000000000000000000")))
 				.to.be.revertedWith("Invalid token address");
@@ -318,14 +302,6 @@ describe("Multi token Staking contract", () => {
 		});
 
 		it("Reverts when token address is not a contract", async () => {
-			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
-
-			// addr1 stake 1e19 i.e. 10 MVT tokens
-			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("10000000000000000000")))
-				.to.emit(stakingContract, "Stake");
-				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
-
 			// unstake partially i.e. 1e18 i.e. 1 MVT tokens
 			await expect(stakingContract.connect(addr1).unstake(addr2.address, BigNumber.from("1000000000000000000")))
 				.to.be.revertedWith("is NOT a contract");
@@ -335,14 +311,6 @@ describe("Multi token Staking contract", () => {
 
 
 		it("Reverts when amount is zero", async () => {
-			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
-
-			// addr1 stake 1e19 i.e. 10 MVT tokens
-			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("10000000000000000000")))
-				.to.emit(stakingContract, "Stake");
-				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
-
 			// unstake partially i.e. 1e18 i.e. 1 MVT tokens
 			await expect(stakingContract.connect(addr1).unstake(token.address, BigNumber.from("0")))
 				.to.be.revertedWith("Amount must be positive");
@@ -351,14 +319,6 @@ describe("Multi token Staking contract", () => {
 
 
 		it("Reverts due to insufficient staked amount", async () => {
-			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
-
-			// addr1 stake 1e19 i.e. 10 MVT tokens
-			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("10000000000000000000")))
-				.to.emit(stakingContract, "Stake");
-				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
-
 			// unstake partially i.e. 11e18 i.e. 11 MVT tokens
 			await expect(stakingContract.connect(addr1).unstake(token.address, BigNumber.from("11000000000000000000")))
 				.to.be.revertedWith("Insufficient staked amount");
@@ -370,14 +330,6 @@ describe("Multi token Staking contract", () => {
 				.to.emit(stakingContract, 'Paused')
 				.withArgs(owner.address);
 
-			// first approve the 1e19 i.e. 10 MVT tokens to the contract
-			token.connect(addr1).approve(stakingContract.address, BigNumber.from("10000000000000000000"));
-
-			// addr1 stake 1e19 i.e. 10 MVT tokens
-			await expect(stakingContract.connect(addr1).stake(token.address, BigNumber.from("10000000000000000000")))
-				.to.be.revertedWith("Pausable: paused");
-				// .withArgs(addr1.address, BigNumber.from("10000000000000000000"), await getCurrentBlockTimestamp());
-
 			// unstake partially i.e. 1e18 i.e. 1 MVT tokens
 			await expect(stakingContract.connect(addr1).unstake(token.address, BigNumber.from("1000000000000000000")))
 				.to.be.revertedWith("Pausable: paused");
@@ -385,27 +337,27 @@ describe("Multi token Staking contract", () => {
 
 	});
 
-	// describe("Withdraw Unstaked", async () => {
-	// 	it("Succeeds with unstaking entirely", async () => {
-	// 		// check balance of addr2 before staking
-	// 		const addr1BalanceBefore = await token.balanceOf(addr1.address);
+/*	describe("Withdraw Unstaked", async () => {
+		it("Succeeds with withdraw unstaked amount entirely", async () => {
+			// check balance of addr1 before staking
+			const addr1BalanceBefore = await token.balanceOf(addr1.address);
 
 
-	// 		// check balance of addr2 is same as before staking
-	// 		const addr2BalanceAfter = await token.balanceOf(addr2.address);
-	// 		await expect(addr2BalanceAfter.sub(addr2BalanceBefore)).to.eq(0);
-	// 	});
+			// check balance of addr1 is same as before staking
+			const addr1BalanceAfter = await token.balanceOf(addr1.address);
+			await expect(addr1BalanceAfter.sub(addr1BalanceBefore)).to.eq(0);
+		});
 
-	// 	it("Succeeds with unstaking partially", async () => {
-	// 		// check balance of addr2 before staking
-	// 		const addr1BalanceBefore = await token.balanceOf(addr1.address);
+		it("Succeeds with withdraw unstaked amount partially", async () => {
+			// check balance of addr1 before staking
+			const addr1BalanceBefore = await token.balanceOf(addr1.address);
 
 			
-	// 		// check balance of addr2 is same as before staking
-	// 		const addr2BalanceAfter = await token.balanceOf(addr2.address);
-	// 		await expect(addr2BalanceAfter.sub(addr2BalanceBefore)).to.eq(0);
-	// 	});
-	// });
-
+			// check balance of addr1 is same as before staking
+			const addr1BalanceAfter = await token.balanceOf(addr1.address);
+			await expect(addr1BalanceAfter.sub(addr1BalanceBefore)).to.eq(0);
+		});
+	});
+*/
 
 });
