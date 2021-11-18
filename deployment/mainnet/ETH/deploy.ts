@@ -4,6 +4,9 @@
 // Runtime Environment's members available in the global scope.
 import { ethers, upgrades } from 'hardhat';
 import { Contract, ContractFactory, BigNumber } from 'ethers';
+import { config as dotenvConfig } from "dotenv";
+import { resolve } from "path";
+dotenvConfig({ path: resolve(__dirname, "./.env") });
 
 async function main(): Promise<void> {
   // Hardhat always runs the compile task when running scripts through it.
@@ -60,16 +63,15 @@ async function main(): Promise<void> {
 
   // --------------------------------------------------------------------------------
   // initiate with setting reward rate
-  await stakingC.connect()setRewardRate(token.address, String(20));
-  // const rewardRate = await stakingC.getRewardRate(token.address);
-  // console.log(`reward rate for token - ${token.address}: ${rewardRate}`);
+  const tx1 = await stakingC.setRewardRate(token.address, String(20));
+  const receipt1 = await tx1.wait();
+  console.log("Owner set reward rate & its transaction hash is ", receipt1.transactionHash);
 
   // --------------------------------------------------------------------------------
   // mint 100,000 reward tokens to staking contract for rewarding
-  await rewardToken.mint(stakingC.address, BigNumber.from("100000000000000000000000"));
-
-  // const rewardBalanceOfStakingC = await rewardToken.balanceOf(stakingC.address);
-  // console.log(`reward tokens minted to staking contract - ${stakingC.address}: ${rewardBalanceOfStakingC}`);
+  const tx2 = await rewardToken.mint(stakingC.address, BigNumber.from("100000000000000000000000"));
+  const receipt2 = await tx2.wait();
+  console.log("Owner minted reward tokens to the staking contract & its transaction hash is ", receipt2.transactionHash);
 
 }
 
