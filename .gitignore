@@ -106,3 +106,6 @@ dist
 
 # ignore .openzeppelin. Built during contract upgrade using proxy
 .openzeppelin/
+
+# Mac
+.DS_Store
