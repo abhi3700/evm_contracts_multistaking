@@ -98,6 +98,12 @@ describe("Multi token Staking contract", () => {
 	});
 
 	describe("Ownable", async () => {
+		it("Should have the correct owner", async () => {
+			expect(await token.owner()).to.equal(owner.address);
+			expect(await rewardToken.owner()).to.equal(owner.address);
+			expect(await stakingContract.owner()).to.equal(owner.address);
+		});
+
 		it("Owner is able to transfer ownership", async () => {
 			await expect(stakingContract.transferOwnership(owner2.address))
 				.to.emit(stakingContract, 'OwnershipTransferred')
