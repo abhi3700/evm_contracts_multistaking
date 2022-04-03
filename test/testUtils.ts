@@ -2,7 +2,7 @@ import { BigNumber, Bytes, ContractFactory, providers, Signer } from "ethers"
 
 import { Artifact } from "hardhat/types"
 import { Contract } from "@ethersproject/contracts"
-import { ERC20Upgradeable } from "../build/typechain/ERC20Upgradeable"
+// import { ERC20Upgradeable } from "../build/typechain/ERC20Upgradeable"
 // import { Swap } from "../build/typechain/Swap"
 import { ethers, network } from "hardhat"
 import { BytesLike } from "@ethersproject/bytes"
@@ -97,32 +97,32 @@ export async function deployContractWithLibraries(
 //   return balances
 // }
 
-export async function getUserTokenBalances(
-  address: string | Signer,
-  tokens: ERC20Upgradeable[],
-): Promise<BigNumber[]> {
-  const balanceArray = []
+// export async function getUserTokenBalances(
+//   address: string | Signer,
+//   tokens: ERC20Upgradeable[],
+// ): Promise<BigNumber[]> {
+//   const balanceArray = []
 
-  if (address instanceof Signer) {
-    address = await address.getAddress()
-  }
+//   if (address instanceof Signer) {
+//     address = await address.getAddress()
+//   }
 
-  for (const token of tokens) {
-    balanceArray.push(await token.balanceOf(address))
-  }
+//   for (const token of tokens) {
+//     balanceArray.push(await token.balanceOf(address))
+//   }
 
-  return balanceArray
-}
+//   return balanceArray
+// }
 
-export async function getUserTokenBalance(
-  address: string | Signer,
-  token: ERC20Upgradeable,
-): Promise<BigNumber> {
-  if (address instanceof Signer) {
-    address = await address.getAddress()
-  }
-  return token.balanceOf(address)
-}
+// export async function getUserTokenBalance(
+//   address: string | Signer,
+//   token: ERC20Upgradeable,
+// ): Promise<BigNumber> {
+//   if (address instanceof Signer) {
+//     address = await address.getAddress()
+//   }
+//   return token.balanceOf(address)
+// }
 
 // EVM methods
 

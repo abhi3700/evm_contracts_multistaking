@@ -1,11 +1,12 @@
-# staking-contract
-Staking contract for multiple tokens
+# multistaking-contract
+
+Staking contract with unstaking feature along with reward distribution for different ERC20 tokens
 
 ## About
 * It's a Staking contract for multiple tokens.
-* User gets rewards based on the current staking amount, reward interval, token's reward rate, staked time duration. 
+* User gets rewards based on the current staking amount, reward interval, token's reward rate, staked time duration.
 * [Instruction](./instruction.md)
- 
+
 ## Installation
 ```console
 $ npm i
